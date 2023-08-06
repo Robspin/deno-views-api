@@ -1,16 +1,14 @@
 import { Application, Router } from "https://deno.land/x/oak/mod.ts"
+import { oakCors } from "https://deno.land/x/cors/mod.ts";
 
 const port = 8000
 const db = await Deno.openKv()
 const app = new Application()
-
 const router = new Router()
 
 router.get('/', async (ctx) => {
   const params = ctx.request.url.search
   const key = `${params.split('?key=')[1] ?? ''}`
-
-  ctx.response.headers.set("Access-Control-Allow-Origin", "*")
 
   await db.atomic().sum(['views', key], 1n).commit()
 
@@ -21,8 +19,6 @@ router.get('/', async (ctx) => {
 })
 
 router.get('/views', async (ctx) => {
-  ctx.response.headers.set("Access-Control-Allow-Origin", "*")
-
   const total: { [key: string]: any } = {}
 
   const entries = await db.list({ prefix: ['views'] })
@@ -34,6 +30,7 @@ router.get('/views', async (ctx) => {
 })
 
 app.use(router.routes())
+app.use(oakCors({ origin: '*' }))
 
 console.log('Running on port: ', port)
 await app.listen({ port })
