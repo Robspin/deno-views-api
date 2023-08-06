@@ -1,10 +1,14 @@
 import { Application, Router } from "https://deno.land/x/oak/mod.ts"
-import { oakCors } from "https://deno.land/x/cors/mod.ts";
 
 const port = 8000
 const db = await Deno.openKv()
 const app = new Application()
 const router = new Router()
+
+const setHeaders = (ctx: any) => {
+  ctx.response.headers.set("Cache-Control", "no-cache")
+  ctx.response.headers.set("Access-Control-Allow-Origin", "*")
+}
 
 router.get('/', async (ctx) => {
   const params = ctx.request.url.search
@@ -15,6 +19,8 @@ router.get('/', async (ctx) => {
   const res = await db.get(['views', key])
   const views = res.value.value
 
+
+  setHeaders(ctx)
   ctx.response.body = views
 })
 
@@ -26,11 +32,13 @@ router.get('/views', async (ctx) => {
     const res = await db.get(entry.key)
     total[String(entry.key[1])] = Number(res.value.value) || 0
   }
+
+  setHeaders(ctx)
   ctx.response.body = total
 })
 
 app.use(router.routes())
-app.use(oakCors())
+app.use(router.allowedMethods())
 
 console.log('Running on port: ', port)
 await app.listen({ port })
