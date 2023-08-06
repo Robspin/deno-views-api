@@ -6,8 +6,10 @@ const app = new Application()
 const router = new Router()
 
 const setHeaders = (ctx: any) => {
-  ctx.response.headers.set("Cache-Control", "no-cache")
   ctx.response.headers.set("Access-Control-Allow-Origin", "*")
+  ctx.response.headers.set("Cache-Control", "no-cache")
+  ctx.response.headers.set("Access-Control-Allow-Methods: GET, POST, OPTIONS")
+  ctx.response.headers.set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
 }
 
 router.get('/', async (ctx) => {
