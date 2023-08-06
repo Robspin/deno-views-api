@@ -30,7 +30,7 @@ router.get('/views', async (ctx) => {
 })
 
 app.use(router.routes())
-app.use(oakCors({ origin: '*' }))
+app.use(oakCors())
 
 console.log('Running on port: ', port)
 await app.listen({ port })
